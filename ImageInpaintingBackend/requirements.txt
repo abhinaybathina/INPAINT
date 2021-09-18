@@ -1,0 +1,9 @@
+django
+django-rest-framework
+torch
+torchvision
+tensorflow
+sklearn
+tqdm
+pyyaml
+opencv-python

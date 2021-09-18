@@ -1,0 +1,6 @@
+2021-09-18 20:53:07,089 - test_image.py[line:176] - INFO: Initialize the dataset...
+2021-09-18 20:53:07,114 - test_image.py[line:188] - INFO: Finish the dataset initialization.
+2021-09-18 20:53:07,117 - test_image.py[line:191] - INFO: Define the Network Structure and Losses
+2021-09-18 20:53:21,485 - test_image.py[line:209] - INFO: Loading pretrained models from latest_ckpt.pth.tar ...
+2021-09-18 20:53:21,567 - test_image.py[line:239] - INFO: Finish Define the Network Structure and Losses
+2021-09-18 20:53:21,568 - test_image.py[line:242] - INFO: Start Validation
