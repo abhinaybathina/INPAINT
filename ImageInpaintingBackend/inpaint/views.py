@@ -23,5 +23,5 @@ class InpaintView(generics.GenericAPIView):
         os.system(
             'cd image_inpaint && python test_image.py config/test_places2_sagan.yml')
         return Response({
-            'output': 'media/output.png'
+            'output': 'http:127.0.0.1:8000/media/output.png'
         }, status=status.HTTP_200_OK)

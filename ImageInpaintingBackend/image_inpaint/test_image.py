@@ -42,7 +42,8 @@ def logger_init():
 
     logfile = 'logs/{}_{}.log'.format(time_stamp, config.LOG_DIR)
     fh = logging.FileHandler(logfile, mode='w')
-    formatter = logging.Formatter("%(asctime)s - %(filename)s[line:%(lineno)d] - %(levelname)s: %(message)s")
+    formatter = logging.Formatter(
+        "%(asctime)s - %(filename)s[line:%(lineno)d] - %(levelname)s: %(message)s")
     fh.setFormatter(formatter)
     logger.addHandler(fh)
 
@@ -60,9 +61,9 @@ def validate(nets, loss_terms, opts, dataloader, epoch, network_type, devices=(c
     ReconLoss, DLoss, PercLoss, GANLoss, StyleLoss = loss_terms['ReconLoss'], loss_terms['DLoss'], loss_terms[
         "PercLoss"], loss_terms["GANLoss"], loss_terms["StyleLoss"]
     optG, optD = opts['optG'], opts['optD']
-    device0, device1 = devices
-    netG.to(device0)
-    netD.to(device0)
+    # device0, device1 = devices
+    # netG.to(device0)
+    # netD.to(device0)
     netG.eval()
     netD.eval()
     batch_time = AverageMeter()
@@ -101,8 +102,8 @@ def validate(nets, loss_terms, opts, dataloader, epoch, network_type, devices=(c
                 print(t, imgs.size())
             pre_inter_imgs = F.interpolate(pre_complete_imgs, size)
 
-            imgs, masks, pre_complete_imgs, pre_inter_imgs = imgs.to(device0), masks.to(device0), pre_complete_imgs.to(
-                device0), pre_inter_imgs.to(device0)
+            # imgs, masks, pre_complete_imgs, pre_inter_imgs = imgs.to(device0), masks.to(device0), pre_complete_imgs.to(
+            #     device0), pre_inter_imgs.to(device0)
             # masks = (masks > 0).type(torch.FloatTensor)
 
             # imgs, masks = imgs.to(device), masks.to(device)
@@ -110,15 +111,18 @@ def validate(nets, loss_terms, opts, dataloader, epoch, network_type, devices=(c
             # mask is 1 on masked region
             # forward
             if network_type == 'l2h_unet':
-                recon_imgs = netG(imgs, masks, pre_complete_imgs, pre_inter_imgs, size)
+                recon_imgs = netG(
+                    imgs, masks, pre_complete_imgs, pre_inter_imgs, size)
             elif network_type == 'l2h_gated':
                 recon_imgs = netG(imgs, masks, pre_inter_imgs)
             elif network_type == 'sa_gated':
                 recon_imgs, _ = netG(imgs, masks)
             complete_imgs = recon_imgs * masks + imgs * (1 - masks)
 
-            pos_imgs = torch.cat([imgs, masks, torch.full_like(masks, 1.)], dim=1)
-            neg_imgs = torch.cat([recon_imgs, masks, torch.full_like(masks, 1.)], dim=1)
+            pos_imgs = torch.cat(
+                [imgs, masks, torch.full_like(masks, 1.)], dim=1)
+            neg_imgs = torch.cat(
+                [recon_imgs, masks, torch.full_like(masks, 1.)], dim=1)
             pos_neg_imgs = torch.cat([pos_imgs, neg_imgs], dim=0)
 
             pred_pos_neg = netD(pos_neg_imgs)
@@ -128,11 +132,12 @@ def validate(nets, loss_terms, opts, dataloader, epoch, network_type, devices=(c
 
             r_loss = ReconLoss(imgs, recon_imgs, recon_imgs, masks)
 
-            imgs, recon_imgs, complete_imgs = imgs.to(device1), recon_imgs.to(device1), complete_imgs.to(device1)
+            # imgs, recon_imgs, complete_imgs = imgs.to(device1), recon_imgs.to(device1), complete_imgs.to(device1)
             p_loss = PercLoss(imgs, recon_imgs) + PercLoss(imgs, complete_imgs)
-            s_loss = StyleLoss(imgs, recon_imgs) + StyleLoss(imgs, complete_imgs)
-            p_loss, s_loss = p_loss.to(device0), s_loss.to(device0)
-            imgs, recon_imgs, complete_imgs = imgs.to(device0), recon_imgs.to(device0), complete_imgs.to(device0)
+            s_loss = StyleLoss(imgs, recon_imgs) + \
+                StyleLoss(imgs, complete_imgs)
+            # p_loss, s_loss = p_loss.to(device0), s_loss.to(device0)
+            # imgs, recon_imgs, complete_imgs = imgs.to(device0), recon_imgs.to(device0), complete_imgs.to(device0)
 
             whole_loss = r_loss + p_loss  # g_loss + r_loss
 
@@ -160,9 +165,12 @@ def validate(nets, loss_terms, opts, dataloader, epoch, network_type, devices=(c
             real_img = Image.fromarray(real_img[0].astype(np.uint8))
             gen_img = Image.fromarray(gen_img[0].astype(np.uint8))
             comp_img = Image.fromarray(comp_img[0].astype(np.uint8))
-            real_img.save(os.path.join(val_save_real_dir, SIZES_TAGS[s_i], "output.png"))
-            gen_img.save(os.path.join(val_save_gen_dir, SIZES_TAGS[s_i], "output.png"))
-            comp_img.save(os.path.join(val_save_comp_dir, SIZES_TAGS[s_i], "output.png"))
+            real_img.save(os.path.join(val_save_real_dir,
+                          SIZES_TAGS[s_i], "output.png"))
+            gen_img.save(os.path.join(val_save_gen_dir,
+                         SIZES_TAGS[s_i], "output.png"))
+            comp_img.save(os.path.join(val_save_comp_dir,
+                          SIZES_TAGS[s_i], "output.png"))
             comp_img.save(os.path.join('../media/', "output.png"))
 
             end = time.time()
@@ -175,74 +183,105 @@ def main():
 
     # Dataset setting
     logger.info("Initialize the dataset...")
-    val_dataset = InpaintDataset('test_image.flist', \
-                                 {'val': 'test_mask.flist'}, \
-                                 resize_shape=tuple(config.IMG_SHAPES), random_bbox_shape=config.RANDOM_BBOX_SHAPE, \
+    val_dataset = InpaintDataset("C:\\Users\\user\\Documents\\BTP\\ImageInpaintingBackend\\image_inpaint\\test_image.flist",
+                                 {'val': "C:\\Users\\user\\Documents\\BTP\\ImageInpaintingBackend\\image_inpaint\\test_mask.flist"},
+                                 resize_shape=tuple(config.IMG_SHAPES), random_bbox_shape=config.RANDOM_BBOX_SHAPE,
                                  random_bbox_margin=config.RANDOM_BBOX_MARGIN,
                                  random_ff_setting=config.RANDOM_FF_SETTING)
-    val_loader = val_dataset.loader(batch_size=1, shuffle=False,
-                                    num_workers=1)
-    # print(len(val_loader))
+    # val_loader = val_dataset.loader(batch_size=1, shuffle=False,
+    #                                 num_workers=1)
 
-    ### Generate a new val data
+    img = val_dataset[0][0]
+    mask = val_dataset[0][1]['val']
+    # Generate a new val data
 
-    logger.info("Finish the dataset initialization.")
+    # logger.info("Finish the dataset initialization.")
 
-    # Define the Network Structure
-    logger.info("Define the Network Structure and Losses")
-    whole_model_path = 'model_logs/{}'.format(config.MODEL_RESTORE)
+    # # Define the Network Structure
+    # logger.info("Define the Network Structure and Losses")
+    # whole_model_path = 'model_logs/{}'.format(config.MODEL_RESTORE)
+    # nets = torch.load(whole_model_path)
+    # netG_state_dict, netD_state_dict = nets['netG_state_dict'], nets['netD_state_dict']
+    # # if config.NETWORK_TYPE == "l2h_unet":
+    # #     # netG = InpaintRUNNet(n_in_channel=config.N_CHANNEL)
+    # #     # netG.load_state_dict(netG_state_dict)
+    # #     pass
+
+    # # elif config.NETWORK_TYPE == 'sa_gated':
+    # netG = InpaintSANet()
+    # load_consistent_state_dict(netG_state_dict, netG)
+    # netG.load_state_dict(netG_state_dict)
+
+    # # netD = InpaintSADirciminator()
+    # netVGG = vgg16_bn(pretrained=True)
+
+    # # netD.load_state_dict(netD_state_dict)
+    # logger.info("Loading pretrained models from {} ...".format(
+    #     config.MODEL_RESTORE))
+
+    # # Define loss
+    # recon_loss = ReconLoss(*(config.L1_LOSS_ALPHA))
+    # gan_loss = SNGenLoss(config.GAN_LOSS_ALPHA)
+    # perc_loss = PerceptualLoss(
+    #     weight=config.PERC_LOSS_ALPHA, feat_extractors=netVGG)
+    # style_loss = StyleLoss(weight=config.STYLE_LOSS_ALPHA,
+    #                        feat_extractors=netVGG)
+    # dis_loss = SNDisLoss()
+    # lr, decay = config.LEARNING_RATE, config.WEIGHT_DECAY
+    # optG = torch.optim.Adam(netG.parameters(), lr=lr, weight_decay=decay)
+    # optD = torch.optim.Adam(netD.parameters(), lr=4 * lr, weight_decay=decay)
+    # nets = {
+    #     "netG": netG,
+    #     "netD": netD,
+    #     "vgg": netVGG
+    # }
+
+    # losses = {
+    #     "GANLoss": gan_loss,
+    #     "ReconLoss": recon_loss,
+    #     "StyleLoss": style_loss,
+    #     "DLoss": dis_loss,
+    #     "PercLoss": perc_loss
+
+    # }
+    # opts = {
+    #     "optG": optG,
+    #     "optD": optD,
+
+    # }
+    # logger.info("Finish Define the Network Structure and Losses")
+
+    # # Start Training
+    # logger.info("Start Validation")
+
+    # validate(nets, losses, opts, val_loader, 0,
+    #          config.NETWORK_TYPE, devices=(cuda0, cuda1))
+    whole_model_path = 'model_logs/latest_ckpt.pth.tar'
     nets = torch.load(whole_model_path)
     netG_state_dict, netD_state_dict = nets['netG_state_dict'], nets['netD_state_dict']
-    if config.NETWORK_TYPE == "l2h_unet":
-        # netG = InpaintRUNNet(n_in_channel=config.N_CHANNEL)
-        # netG.load_state_dict(netG_state_dict)
-        pass
 
-    elif config.NETWORK_TYPE == 'sa_gated':
-        netG = InpaintSANet()
-        load_consistent_state_dict(netG_state_dict, netG)
-        # netG.load_state_dict(netG_state_dict)
-
+    netG = InpaintSANet()
     netD = InpaintSADirciminator()
-    netVGG = vgg16_bn(pretrained=True)
 
-    # netD.load_state_dict(netD_state_dict)
-    logger.info("Loading pretrained models from {} ...".format(config.MODEL_RESTORE))
+    load_consistent_state_dict(netG_state_dict, netG)
 
-    # Define loss
-    recon_loss = ReconLoss(*(config.L1_LOSS_ALPHA))
-    gan_loss = SNGenLoss(config.GAN_LOSS_ALPHA)
-    perc_loss = PerceptualLoss(weight=config.PERC_LOSS_ALPHA, feat_extractors=netVGG.to(cuda1))
-    style_loss = StyleLoss(weight=config.STYLE_LOSS_ALPHA, feat_extractors=netVGG.to(cuda1))
-    dis_loss = SNDisLoss()
-    lr, decay = config.LEARNING_RATE, config.WEIGHT_DECAY
-    optG = torch.optim.Adam(netG.parameters(), lr=lr, weight_decay=decay)
-    optD = torch.optim.Adam(netD.parameters(), lr=4 * lr, weight_decay=decay)
-    nets = {
-        "netG": netG,
-        "netD": netD,
-        "vgg": netVGG
-    }
+    netG.eval()
+    netD.eval()
 
-    losses = {
-        "GANLoss": gan_loss,
-        "ReconLoss": recon_loss,
-        "StyleLoss": style_loss,
-        "DLoss": dis_loss,
-        "PercLoss": perc_loss
+    netG.train()
+    netD.train()
 
-    }
-    opts = {
-        "optG": optG,
-        "optD": optD,
+    img = (img / 127.5 - 1)
+    recon_imgs, refine = netG(img, mask)
+    complete_imgs = recon_imgs * mask + img * (1 - mask)
 
-    }
-    logger.info("Finish Define the Network Structure and Losses")
+    gen_img = img2photo(recon_imgs)
+    comp_img = img2photo(complete_imgs)
 
-    # Start Training
-    logger.info("Start Validation")
+    gen_img = Image.fromarray(gen_img[0].astype(np.uint8))
+    comp_img = Image.fromarray(comp_img[0].astype(np.uint8))
+    comp_img.save('../media/output.png')
 
-    validate(nets, losses, opts, val_loader, 0, config.NETWORK_TYPE, devices=(cuda0, cuda1))
 
 if __name__ == '__main__':
     main()
