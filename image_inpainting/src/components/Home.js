@@ -61,8 +61,6 @@ const Home = () => {
         image.onload = function () {
             setWidth(this.width);
             setHeight(this.height);
-            // alert(this.width + " " + this.height);
-            // URL.revokeObjectURL(input);
         };
         image.src = input;
         setImageLoaded(true);

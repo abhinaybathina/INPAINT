@@ -225,6 +225,8 @@ class InpaintSANet(torch.nn.Module):
 
     def forward(self, imgs, masks, img_exs=None):
         # Coarse
+        print(masks.shape)
+        print(imgs.shape)
         masked_imgs = imgs * (1 - masks) + masks
         if img_exs == None:
             input_imgs = torch.cat(

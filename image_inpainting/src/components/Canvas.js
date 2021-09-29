@@ -3,14 +3,20 @@ import Typography from '@material-ui/core/Typography';
 import Slider from '@material-ui/core/Slider';
 import Button from '@mui/material/Button';
 import CanvasDraw from "react-canvas-draw";
+import axios from "axios";
 
 
 const Canvas = (props) => {
     const { inputPhoto, width, height } = props;
     const canvasWidth = 400 * (width / height);
     const [brushSize, setBrushSize] = useState(12);
-    const [savedImage, setSavedImage] = useState("");
+
     const canvasRef = useRef(null);
+
+    const inpaintImage = async (data) => {
+        await axios.post('http://127.0.0.1:8000/api/inpaint', data)
+            .then((res) => console.log(res))
+    }
 
     const clearCanvasHandler = () => {
         const canvas = canvasRef.current;
@@ -24,9 +30,27 @@ const Canvas = (props) => {
 
     const saveImageHandler = () => {
         const canvas = canvasRef.current;
-        const image = canvas.canvasContainer.childNodes[1].toDataURL("image/png");
-        setSavedImage(image);
-        console.log(savedImage);
+        const mask = canvas.canvasContainer.childNodes[1].toDataURL("image/png");
+        let imageFile = null;
+        let maskFile = null;
+        let formData = new FormData();
+        fetch(inputPhoto)
+            .then(res => res.blob())
+            .then(blob => {
+                const file = new File([blob], "image.png", { type: 'image/png' });
+                imageFile = file;
+            })
+        fetch(mask)
+            .then(res => res.blob())
+            .then(blob => {
+                const file = new File([blob], "mask.png", { type: "image/png" });
+                maskFile = file;
+            })
+            .then(() => {
+                formData.append('image', imageFile);
+                formData.append('mask', maskFile);
+                inpaintImage(formData);
+            })
     }
 
     const valuetext = (value) => {
