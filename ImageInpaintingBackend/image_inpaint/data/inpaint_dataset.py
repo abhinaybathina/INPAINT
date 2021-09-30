@@ -35,7 +35,7 @@ class InpaintDataset(BaseDataset):
         # with open(img_flist_path, 'r') as f:
         #     self.img_paths = f.read().splitlines()
         self.img_paths = [
-            'C:\\Users\\user\\Documents\\BTP\\ImageInpaintingBackend\\image_inpaint\\image.png']
+            'image.png']
 
         self.mask_paths = {}
         # for mask_type in mask_flist_paths_dict:
@@ -47,7 +47,7 @@ class InpaintDataset(BaseDataset):
         #         with open(mask_flist_paths_dict[mask_type]) as f:
         #             self.mask_paths[mask_type] = f.read().splitlines()
         self.mask_paths['val'] = [
-            'C:\\Users\\user\\Documents\\BTP\\ImageInpaintingBackend\\image_inpaint\\mask.png']
+            'mask.png']
 
         self.resize_shape = resize_shape
         self.random_bbox_shape = random_bbox_shape

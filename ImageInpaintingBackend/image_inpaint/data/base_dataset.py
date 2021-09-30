@@ -19,7 +19,7 @@ class BaseDataset(Dataset):
     def __getitem__(self):
         raise NotImplementedError
 
-    def transform_initialize(self, crop_size, config=['random_crop', 'to_tensor', 'norm']):
+    def transform_initialize(self, crop_size, config=['to_tensor', 'norm']):
         """
         Initialize the transformation oprs and create transform function for img
         """
